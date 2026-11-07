@@ -1,0 +1,9 @@
+{
+  "name": "git-to-dev",
+  "label": "Sync GIT to DEV (push-triggered)",
+  "type": "additive",
+  "description": "Pushes changed IntegrationPackages and PartnerDirectory entries from GIT to the DEV tenant on every push to the default branch",
+  "workflows": [
+    "btp-sync-git-to-dev.yml"
+  ]
+}

@@ -84,7 +84,7 @@ permissions:
 jobs:
   analyze-changes:
     name: ${{ inputs.base-ref }} -> ${{ inputs.target-ref }}
-    environment: ${{ github.event.inputs.target-env }}
+    environment: ${{ inputs.target-env }}
     runs-on: ${{ vars.RUNS_ON && fromJson(vars.RUNS_ON) || 'ubuntu-latest' }}
     outputs:
       package_upload_csv_content: ${{ steps.output-csv-contents.outputs.package_upload_content }}
@@ -104,7 +104,7 @@ jobs:
       - name: Generate GitHub App token
         id: app-token-cicd
         if: ${{ vars.GIT_CICD_APP_ID != '' }}
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ vars.GIT_CICD_APP_ID }}
           private-key: ${{ secrets.GIT_CICD_APP_PRIVATE_KEY }}
@@ -122,7 +122,7 @@ jobs:
           echo "token=$TOKEN" >> $GITHUB_OUTPUT
 
       - name: Checkout cicd-actions-intsuite repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: ${{ inputs.git-cicd-orgrepo }}
           ref: ${{ inputs.workflow-ref }}
@@ -133,16 +133,16 @@ jobs:
         id: get-compare-packages
         uses: ./cicd-btp-insuite/.github/actions/get-compare-file
         with:
-          base-ref: ${{ github.event.inputs.base-ref }}
-          target-ref: ${{ github.event.inputs.target-ref }}
+          base-ref: ${{ inputs.base-ref }}
+          target-ref: ${{ inputs.target-ref }}
           mode: IntegrationPackages
  
       - name: Get Compare JSON from GIT CLI for PartnerDirectory
         id: get-compare-partnerdir
         uses: ./cicd-btp-insuite/.github/actions/get-compare-file
         with:
-          base-ref: ${{ github.event.inputs.base-ref }}
-          target-ref: ${{ github.event.inputs.target-ref }}
+          base-ref: ${{ inputs.base-ref }}
+          target-ref: ${{ inputs.target-ref }}
           mode: PartnerDirectory
           
       - name: Prepare IntegrationPackages CSVs
@@ -226,7 +226,7 @@ jobs:
 
       - name: Upload built artifacts (v4 - GitHub Cloud)
         if: ${{ contains(github.server_url, 'github.com') || contains(github.server_url, 'ghe.com') }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: git-diff-result.zip
           path: |
@@ -241,19 +241,3 @@ jobs:
             ${{ steps.create-pid-csvs.outputs.upload-csv }}
             ${{ steps.create-pid-csvs.outputs.delete-csv }}
 
-      - name: Upload built artifacts (v3 - GitHub Enterprise Server)
-        if: ${{ !contains(github.server_url, 'github.com') && !contains(github.server_url, 'ghe.com') }}
-        uses: actions/upload-artifact@v3
-        with:
-          name: git-diff-result.zip
-          path: |
-            ${{ steps.get-compare-packages.outputs.files_changed }}
-            ${{ steps.get-compare-packages.outputs.base_dir_file }}
-            ${{ steps.get-compare-packages.outputs.target_dir_file }}
-            ${{ steps.get-compare-partnerdir.outputs.files_changed }}
-            ${{ steps.get-compare-partnerdir.outputs.base_dir_file }}
-            ${{ steps.get-compare-partnerdir.outputs.target_dir_file }}
-            ${{ steps.create-package-csvs.outputs.upload-csv }}
-            ${{ steps.create-package-csvs.outputs.delete-csv }}
-            ${{ steps.create-pid-csvs.outputs.upload-csv }}
-            ${{ steps.create-pid-csvs.outputs.delete-csv }}

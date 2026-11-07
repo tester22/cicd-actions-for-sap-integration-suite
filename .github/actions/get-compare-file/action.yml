@@ -33,7 +33,7 @@ runs:
   using: "composite"
   steps:
     - name: Checkout repo
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         fetch-depth: 0
         path: btp-insuite
@@ -50,6 +50,12 @@ runs:
         detect_remote_ref_type() {
           local ref_name=$1
           local full_ref
+
+          # Full commit SHA (e.g. github.event.before / github.sha on push events)
+          if [[ "$ref_name" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "$ref_name"
+            return
+          fi
 
           full_ref=$(git ls-remote --heads origin "$ref_name" | awk '{print $2}')
           if [[ -n "$full_ref" ]]; then

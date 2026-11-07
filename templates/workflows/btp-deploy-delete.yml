@@ -11,6 +11,7 @@
 # 1.4.0 - 2026-05-20 - Pass BTP_EIC_URL_TEMPLATE; merge authorize and read-env-vars into single initialize job (O.Weng)
 # 1.6.0 - 2026-05-21 - Split single GitHub App into CICD reader (GIT_CICD_APP_ID) and consumer bot (GIT_GITHUB_APP_ID); remove GIT_GITHUB_APP_PRIVATE_KEY from delete-upload passthrough (reference workflow doesn't declare it) (O.Weng)
 # 1.7.0 - 2026-05-27 - Replace hardcoded target-env options with #!cicd:target-env-options! placeholder for dynamic environment injection (O.Weng)
+# 1.8.0 - 2026-11-07 - Add deploy-to-runtime choice (false = designtime upload only) (Implema)
 #
 
 name: (Admin) BTP Deploy/Delete Manager
@@ -45,6 +46,14 @@ on:
         options:
           - false
           - true        
+      deploy-to-runtime:
+        description: "Deploy to runtime? false = upload only, deployed iFlows keep running"
+        required: false
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
       target-env:
         description: "Target BTP Environment"
         required: false
@@ -72,7 +81,7 @@ jobs:
       - name: Generate GitHub App token
         id: app-token
         if: ${{ vars.GIT_GITHUB_APP_ID != '' }}
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ vars.GIT_GITHUB_APP_ID }}
           private-key: ${{ secrets.GIT_GITHUB_APP_PRIVATE_KEY }}
@@ -118,6 +127,7 @@ jobs:
       partnerdirectory-delete-ids: ${{ github.event.inputs.mode == 'PartnerDirectory' && github.event.inputs.delete-ids || '' }}
       partnerdirectory-upload-ids: ${{ github.event.inputs.mode == 'PartnerDirectory' && github.event.inputs.upload-ids || '' }}
       attach-zip-only: ${{ github.event.inputs.attach-zip-only }}
+      deploy-to-runtime: ${{ github.event.inputs.deploy-to-runtime || 'true' }}
       btp-api-user: ${{ needs.initialize.outputs.btp-api-user }}
       btp-tec-user: ${{ needs.initialize.outputs.btp-tec-user }}
       btp-token-url: ${{ needs.initialize.outputs.btp-token-url }}

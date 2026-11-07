@@ -88,7 +88,8 @@ runs:
           echo "  📦 Package: $PKG_NAME ($PKG_ID)"
 
           # Locate the package directory by ID (robust: ignores name differences)
-          PKG_DIR=$(find "$PACKAGES_DIR" -maxdepth 1 -type d -name "*~${PKG_ID}" 2>/dev/null | head -1)
+          # || true: without the directory find fails and pipefail would end the step silently
+          PKG_DIR=$(find "$PACKAGES_DIR" -maxdepth 1 -type d -name "*~${PKG_ID}" 2>/dev/null | head -1) || true
           if [ -z "$PKG_DIR" ]; then
             echo "    ⚠️  Package directory not found in Git for ID $PKG_ID — skipping"
             # Still fetch iflows from BTP and mark them all as not-in-git

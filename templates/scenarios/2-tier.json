@@ -1,0 +1,14 @@
+{
+  "name": "2-tier",
+  "label": "2-tier landscape (DEV / PRD)",
+  "type": "exclusive",
+  "description": "2-tier landscape (DEV/PRD) core CI/CD workflows, without a TST stage",
+  "workflows": [
+    "btp-download-to-git.yml",
+    "btp-download-dev-to-development.yml",
+    "btp-deploy-delete.yml",
+    "btp-update-externalized-iflow-parameters.yml",
+    "btp-release-import.yml",
+    "git-create-release.yml"
+  ]
+}

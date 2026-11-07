@@ -112,6 +112,16 @@ Calculates the delta between two Git references and optionally deploys changed p
 
 ---
 
+### btp-sync-git-to-dev.yml
+
+Deploys IntegrationPackages and PartnerDirectory entries that changed in a push to the default branch from **GIT** to **DEV**. Unchanged packages are not touched. Manual runs can compare any two refs.
+
+**Trigger:** Push to `main`, or manual (`workflow_dispatch`) with optional `base-ref` / `target-ref`
+
+**Required variables:** `GIT_CICD_ORGREPO`, `GIT_CICD_REF`, `BTP_API_URL`, `BTP_API_USER`, `BTP_TOKEN_URL`, `BTP_TEC_USER`
+
+---
+
 ### btp-update-externalized-iflow-parameters.yml
 
 Updates externalized parameters for a specific IFlow and optionally deploys it.
